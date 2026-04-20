@@ -1,0 +1,6 @@
+{
+  "python.pythonPath": "python",
+  "python.autoComplete.extraPaths": ["${workspaceFolder}/cs336-basics/cs336_basics"],
+  "python.analysis.extraPaths": ["${workspaceFolder}/cs336-basics/cs336_basics"],
+  "python.analysis.autoSearchPaths": true
+}
