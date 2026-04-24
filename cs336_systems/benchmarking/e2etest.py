@@ -41,13 +41,13 @@ def get_data(batch_size:int, seq_len:int, vocab_size:int = 10000) -> torch.Tenso
     return torch.randint(vocab_size, (batch_size, seq_len)) # [b, s]
 
 def get_optimizer(model: BasicsTransformerLM):
-    return AdamW(model.parameters(), lr=1e-3, weight_decay=0.01)
+    return torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.01)
+    # return AdamW(model.parameters(), lr=1e-3, weight_decay=0.01)
 
 def get_run(model: BasicsTransformerLM, data: torch.Tensor, optimizer:AdamW|None = None, pattern:str = "forward") -> Callable:
     if pattern == "forward":
-        def run():
-            with torch.no_grad():   
-                model(data)
+        def run():  
+            model(data)
     elif pattern == "forward_backward":
         def run():
             optimizer.zero_grad()
@@ -61,6 +61,7 @@ def get_run(model: BasicsTransformerLM, data: torch.Tensor, optimizer:AdamW|None
             loss = output.mean()
             loss.backward()
             optimizer.step()
+
     else:
         raise ValueError(f"Invalid pattern: {pattern}")
     return run
@@ -98,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_layers", type=int, default=6, help="number of layers")
     parser.add_argument("--num_heads", type=int, default=8, help="number of heads")
     parser.add_argument("--d_ff", type=int, default=2048, help="dimension of feedforward network")
-    parser.add_argument("--batch_size", type=int, default=16, help="batch size")
+    parser.add_argument("--batch_size", type=int, default=8, help="batch size")
     parser.add_argument("--vocab_size", type=int, default=10000, help="vocabulary size")
     parser.add_argument("--rope_theta", type=float, default=10000.0, help="theta for RoPE positional encoding")
     args = parser.parse_args()
@@ -124,7 +125,7 @@ if __name__ == "__main__":
     print("size of model: ", sum(p.numel() for p in model.parameters()) / 1e6 , "M parameters")
     print("size of data: ", data.numel() * data.element_size() / 1e6, "MB")
     #run1 = get_run(model, data, optimizer=optimizer, pattern="forward")
-    #run2 = get_run(model, data, optimizer=optimizer, pattern="forward_backward")
+    run2 = get_run(model, data, optimizer=optimizer, pattern="forward_backward")
     #run3 = get_run(model, data, optimizer=optimizer, pattern="forward_backward_step")
     if isinstance(run1, Callable):
         print("Benchmarking forward pass...")
@@ -134,4 +135,4 @@ if __name__ == "__main__":
        benchmark(run2, model, data, num_trials=10, warmup_steps=5)
     if isinstance(run3, Callable):
        print("Benchmarking forward + backward + step...")
-       benchmark(run3, model, data, num_trials=10, warmup_steps=5)
+       benchmark(run3, model, data, num_trials=1, warmup_steps=5)
