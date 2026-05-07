@@ -17,6 +17,7 @@ dependencies = [
     "pandas>=2",
     "ty>=0.0.29",
     "ruff>=0.15.10",
+    "omegaconf>=2.3.0",
 ]
 
 [build-system]
@@ -26,6 +27,10 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "cs336_systems"
 module-root = ""
+
+[[tool.uv.index]]
+url = "https://mirror.sjtu.edu.cn/pypi/web/simple"
+default = true
 
 [tool.uv]
 package = true
