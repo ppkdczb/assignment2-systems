@@ -15,6 +15,7 @@ from torch import Tensor
 
 from cs336_basics.nn_utils import softmax
 
+import torch.cuda.nvtx as nvtx
 logger = logging.getLogger(__name__)
 
 
